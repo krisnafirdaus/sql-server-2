@@ -218,20 +218,23 @@
 --left join menampilkan semua kategori beserta prduknya (termasuk produk tanpa kategori)
 -- SELECT p.NamaProduk, p.harga, k.NamaKategori from Produk p LEFT JOIN Kategori k ON p.KategoriID = k.KategoriID ORDER BY p.NamaProduk;
 
+-- SELECT * from Kategori;
+-- SELECT * from Produk;
+
 -- mencari kategori yang tidak memiliki produk
 -- SELECT 
 --     k.NamaKategori 
 -- FROM Kategori k
 -- LEFT JOIN Produk p ON k.KategoriID = p.KategoriID
--- WHERE p.ProdukID is NULL
+-- WHERE p.KategoriID is NULL
 
 -- right join (sama seperti LEFT JOIN tapi dibalik)
-SELECT 
-    s.NamaSupplier, 
-    p.NamaProduk 
-from Produk p
-RIGHT JOIN Supplier s ON p.SupplierID = s.SupplierID 
-ORDER BY s.NamaSupplier;
+-- SELECT 
+--     s.NamaSupplier, 
+--     p.NamaProduk 
+-- from Produk p
+-- RIGHT JOIN Supplier s ON p.SupplierID = s.SupplierID 
+-- ORDER BY s.NamaSupplier;
 
 --full outer join - menampilkan semua data dari kedua table
 -- SELECT 
@@ -239,9 +242,95 @@ ORDER BY s.NamaSupplier;
 --     k.NamaKategori
 -- from Produk p
 -- FUll OUTER JOIN Kategori k ON p.KategoriID = k. KategoriID
--- ORDER BY 
+-- ORDER BY ma
 --     p.NamaProduk,
 --     k.NamaKategori;
  
+
+-- self join
+-- CREATE TABLE Karyawan (
+--     KaryawanID INT PRIMARY KEY,
+--     NamaKaryawan NVARCHAR(100),
+--     ManagerID INT
+-- )
+
+-- INSERT INTO Karyawan VALUES
+--     (1, 'John Manager', Null),
+--     (2, 'Alice Staff', 1),
+--     (3, 'Bob Staff', 1),
+--     (4, 'Charlie Staff', 2);
+
+-- self join untuk menampilkan karyawan dan managernya 
+-- SELECT
+--     k.NamaKaryawan AS Karyawan,
+--     m.NamaKaryawan AS Manager
+-- FROM Karyawan k 
+-- LEFT JOIN Karyawan m on k.ManagerID = m.KaryawanID;
+
+-- complex join dengan subquery menampilkan produk dengan harga di atas rata rata per kategori
+-- SELECT
+--     p.NamaProduk,
+--     p.Harga,
+--     k.NamaKategori,
+--     rata.RataHarga
+-- FROM
+--     Produk p 
+-- INNER JOIN Kategori k ON p.KategoriID = k.KategoriID
+-- INNER JOIN (
+--     SELECT 
+--         KategoriID,
+--         AVG(Harga) as RataHarga
+--     FROM Produk
+--     WHERE KategoriID IS NOT NULL
+--     GROUP BY KategoriID
+-- ) rata ON p.KategoriID = rata.KategoriID
+-- WHERE p.Harga > rata.RataHarga
+-- ORDER BY k.NamaKategori, p.Harga DESC;
+
+-- -- laporan lengkap pesangan dengan detail product
+-- CREATE TABLE TestPesanan (
+--     PesananID INT PRIMARY KEY IDENTITY(1,1),
+--     PelangganID INT,
+--     TanggalPesanan DATETIME DEFAULT GETDATE()   
+-- );
+
+-- CREATE TABLE TestDetailPesanan (
+--     DetailID INT PRIMARY KEY IDENTITY(1,1),
+--     PesananID INT,
+--     ProdukID INT,
+--     Jumlah INT,
+--     HargaSatuan DECIMAL(12,2),
+-- );
+
+-- -- Sample data
+-- INSERT INTO TestPesanan (PelangganID) VALUES (1), (2);
+-- INSERT INTO TestDetailPesanan (PesananID, ProdukID, Jumlah, HargaSatuan) VALUES 
+--     (1, 1, 1, 1500000),
+--     (1, 3, 2, 150000),
+--     (2, 2, 1, 8000000);
+
+-- select * from  TestPesanan;
+-- select * from  TestDetailPesanan;
+
+-- query laporang lengkap
+SELECT
+    pl.NamaPelanggan,
+    ps.PesananID,
+    ps.TanggalPesanan,
+    pr.NamaProduk,
+    k.NamaKategori,
+    s.NamaSupplier,
+    dp.Jumlah,
+    dp.HargaSatuan,
+    (dp.Jumlah * HargaSatuan) AS Subtotal
+FROM TestPesanan ps
+INNER JOIN Pelanggan pl ON ps.PelangganID = pl.PelangganID
+INNER JOIN TestDetailPesanan dp ON ps.PesananID = dp.PesananID
+INNER JOIN Produk pr ON dp.ProdukID = pr.ProdukID
+LEFT JOIN Kategori k ON pr.KategoriID = k.KategoriID
+LEFT JOIN Supplier s ON pr.SupplierID = s.SupplierID
+ORDER BY ps.PesananID, dp.DetailID;
+
+
 
     
