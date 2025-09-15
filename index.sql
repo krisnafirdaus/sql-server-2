@@ -21,7 +21,7 @@
 --     SupplierID INT
 -- )
 
-SELECT * from sys.tables
+-- SELECT * from sys.tables
 
 -- -- constraint untuk validasi harga
 -- ALTER TABLE Produk
@@ -135,17 +135,16 @@ SELECT * from sys.tables
 -- CREATE INDEX IX_DetailPesanan_PesananID ON DetailPesanan(PesananID);
 
 --- melihat semua constraint dalam database
-SELECT 
-    tc.CONSTRAINT_NAME,
-    tc.TABLE_NAME,
-    tc.CONSTRAINT_TYPE,
-    cc.COLUMN_NAME
-from INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc
-LEFT JOIN INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE cc
-    ON tc.CONSTRAINT_NAME = cc.CONSTRAINT_NAME
-WHERE tc.TABLE_CATALOG = 'TokoOnlineDB'
-ORDER BY tc.TABLE_NAME, tc.CONSTRAINT_TYPE;
-
+-- SELECT 
+--     tc.CONSTRAINT_NAME,
+--     tc.TABLE_NAME,
+--     tc.CONSTRAINT_TYPE,
+--     cc.COLUMN_NAME
+-- from INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc
+-- LEFT JOIN INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE cc
+--     ON tc.CONSTRAINT_NAME = cc.CONSTRAINT_NAME
+-- WHERE tc.TABLE_CATALOG = 'TokoOnlineDB'
+-- ORDER BY tc.TABLE_NAME, tc.CONSTRAINT_TYPE;
 
 -- menonaktifkan sementara
 -- ALTER TABLE DetailPesanan NOCHECK CONSTRAINT FK_DetailPesanan_Produk;
@@ -158,3 +157,91 @@ ORDER BY tc.TABLE_NAME, tc.CONSTRAINT_TYPE;
 
 -- menambahkan kembali constraint
 -- ALTER TABLE Produk ADD CONSTRAINT CK_Produk_Harga CHECK (Harga > 0);
+
+-- DELETE FROM Pesanan WHERE PesananID = 1123;
+
+-- insert sample data
+-- INSERT INTO Kategori (NamaKategori, Deskripsi) VALUES
+-- ('Elektronik', 'Perangkat elektronik seperti ponsel, laptop, dan televisi'),
+-- ('Pakaian', 'Berbagai jenis pakaian untuk pria, wanita, dan anak-anak'),
+-- ('Rumah Tangga', 'Peralatan rumah tangga seperti perabotan dan dekorasi'),
+-- ('Buku', 'Berbagai genre buku termasuk fiksi, non-fiksi, dan buku anak-anak');
+
+-- INSERT INTO Supplier (NamaSupplier, Alamat, NoTelepon, Email) VALUES
+-- ('TechSupply Co.', 'Jl. Teknologi No. 123, Jakarta', '02112345678', 'info@techsupply.co.id'),
+-- ('FashionHub', 'Jl. Mode No. 45, Bandung', '02287654321', 'info@fashionhub.co.id'),
+-- ('HomeEssentials', 'Jl. Rumah No. 67, Surabaya', '03123456789', 'info@homeessentials.co.id');
+
+-- INSERT INTO Produk (NamaProduk, Harga, Stok, KategoriID, SupplierID) VALUES
+-- ('iPhone 13', 999.99, 50, 1, 1),
+-- ('Samsung Galaxy S21', 799.99, 30, 1, 1),
+-- ('Nike Air Max', 120.00, 80, 2, 2),
+-- ('Blender Philips', 49.99, 40, 3, 3),
+-- ('Vacuum Cleaner Dyson', 299.99, 20, 3, 3),
+-- ('The Great Gatsby', 10.99, 200, 4, NULL),
+-- ('1984 by George Orwell', 8.99, 150, 4, NULL);
+
+-- INSERT INTO Pelanggan (NamaPelanggan, TanggalLahir, JenisKelamin, Email, NoTelepon) VALUES
+-- ('Andi Wijaya', '1990-05-15', 'L', 'andi.wijaya@example.com', '08123456789'),
+-- ('Siti Aminah', '1985-08-22', 'P', 'siti.aminah@example.com', '08234567890'),
+-- ('Budi Santoso', '2000-12-30', 'L', 'budi.santoso@example.com', '08345678901');
+
+-- SELECT * FROM Produk;
+
+-- inner join menampilkan produk beserta kategori
+-- SELECT p.NamaProduk, p.Harga, k.NamaKategori from Produk p INNER JOIN Kategori k ON p.KategoriID = k.KategoriID;
+
+--- inner join menampilkan produk beserta supplier
+-- SELECT p.NamaProduk, p.Harga, s.NamaSupplier, s.NoTelepon from Produk p INNER JOIN Supplier s ON p.SupplierID = s.SupplierID;
+
+-- multiple inner join menampilkan produk denga  kategori dan supplier
+-- SELECT p.ProdukID, p.NamaProduk, p.Harga, p.Stok, s.NamaSupplier, k.NamaKategori 
+-- from Produk p 
+-- INNER JOIN Kategori k ON p.KategoriID = k.KategoriID
+-- INNER JOIN Supplier s ON p.SupplierID = s.SupplierID
+-- ORDER BY p.NamaProduk;
+
+-- inner join where dan agregasi menampilkan total stock produk per ketegori
+-- SELECT 
+--     k.NamaKategori, 
+--     COUNT(p.ProdukID) as JumlahProduk,
+--     SUM(p.Stok) as TotalStok,
+--     AVG(p.Harga) as RataRataHarga
+-- from Kategori k 
+-- INNER JOIN Produk p ON k.KategoriID = p.KategoriID
+-- GROUP BY k.KategoriID, k.NamaKategori
+-- ORDER BY TotalStok DESC;
+
+-- left join menampilkan semua kategori beserta prduknya (termasuk kategori tanpa produk)
+-- SELECT k.NamaKategori, p.NamaProduk, p.harga from Kategori k LEFT JOIN Produk p ON k.KategoriID = p.KategoriID ORDER BY k.NamaKategori, p.NamaProduk;
+
+--left join menampilkan semua kategori beserta prduknya (termasuk produk tanpa kategori)
+-- SELECT p.NamaProduk, p.harga, k.NamaKategori from Produk p LEFT JOIN Kategori k ON p.KategoriID = k.KategoriID ORDER BY p.NamaProduk;
+
+-- mencari kategori yang tidak memiliki produk
+-- SELECT 
+--     k.NamaKategori 
+-- FROM Kategori k
+-- LEFT JOIN Produk p ON k.KategoriID = p.KategoriID
+-- WHERE p.ProdukID is NULL
+
+-- right join (sama seperti LEFT JOIN tapi dibalik)
+SELECT 
+    s.NamaSupplier, 
+    p.NamaProduk 
+from Produk p
+RIGHT JOIN Supplier s ON p.SupplierID = s.SupplierID 
+ORDER BY s.NamaSupplier;
+
+--full outer join - menampilkan semua data dari kedua table
+-- SELECT 
+--     p.NamaProduk,
+--     k.NamaKategori
+-- from Produk p
+-- FUll OUTER JOIN Kategori k ON p.KategoriID = k. KategoriID
+-- ORDER BY 
+--     p.NamaProduk,
+--     k.NamaKategori;
+ 
+
+    
